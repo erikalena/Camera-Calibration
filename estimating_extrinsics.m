@@ -88,8 +88,9 @@ function [data] = estimating_extrinsics(data)
         t = (1/lambda)*inv_K*data(idx).H(:,3);
         
         r3 = cross(r1,r2);
-    
-        data(idx).R = [r1 r2 r3 t]; % add R to data
+        R = [r1 r2 r3];
+        [U,~,V] = svd(R); % this because due to noise R may be not orthogonal
+        data(idx).R = [U*V' t]; % add R to data
         data(idx).K = K;    % add K to data
         data(idx).P = data(idx).K*data(idx).R;
         data(idx).lambda = lambda;
