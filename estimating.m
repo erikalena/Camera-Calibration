@@ -1,9 +1,9 @@
-function [data] = estimating_extrinsics(data)
+function [data] = estimating(data)
     n = length(data); % number of images
 
     % estimate H for each image
     for idx=1:n
-        XYpixel = data(idx).XYpixel;
+        XYpixel = data(idx).expected;
         XYmm = data(idx).XYmm;
         
         A = zeros(2*length(XYpixel), 9); % size of A is 2n x 9
@@ -33,9 +33,9 @@ function [data] = estimating_extrinsics(data)
     
     for i=1:n
         % v
-        v_11 = find_v(1,1, data(i).H);
-        v_12 = find_v(1,2, data(i).H);
-        v_22 = find_v(2,2, data(i).H);
+        v_11 = findV(1,1, data(i).H);
+        v_12 = findV(1,2, data(i).H);
+        v_22 = findV(2,2, data(i).H);
         
         % stack all the equations
         V((i*2-1):i*2,:) = [v_12'; (v_11 - v_22)'];
