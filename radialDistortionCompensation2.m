@@ -37,8 +37,9 @@ function [data, k] = radialDistortionCompensation2(data)
         % initialize matrices and set the system
         % to find k1, k2 parameters
 
-        A = zeros(2*npoints*2, 2); % matrix A has two equations for each point of each image
-        b = zeros(2*npoints*2, 1); % column vector b of solutions
+        
+        A = zeros(2*4*n, 2); % matrix A has two equations for each point of each image
+        b = zeros(2*4*n, 1); % column vector b of solutions
         K = data(1).K; % matrix K of intrinsic parameters
     
         % alphau, alphav, u0, v0 parameters in already computed matrix 
@@ -49,10 +50,11 @@ function [data, k] = radialDistortionCompensation2(data)
         u0 = K(1,3);
         v0 = K(2,3);
         
+        ii = [1; 50; 100; 150];
         % fill A and b
-        for i=1:2
-            for j=1:npoints
-        
+        for i=1:n
+            for z=1:4
+                j = ii(z);
                 uhat = data(i).XYpixel(j,1);
                 u = data(i).expected(j,1);
         
@@ -61,7 +63,7 @@ function [data, k] = radialDistortionCompensation2(data)
         
                 rd = ((u-u0)/alpha_u)^2 + ((v-v0)/alpha_v)^2;
                 
-                idx = (i-1)*2*npoints + (j)*2-1;
+                idx = (i-1)*2*npoints + (z)*2-1;
               
                 A(idx,1) = (u - u0)*rd;
                 A(idx,2) = (u - u0)*rd^2;
@@ -77,7 +79,7 @@ function [data, k] = radialDistortionCompensation2(data)
         k = lsqr(A,b); % same as: inv((A'*A))*A'*b
         k1 = k(1); k2 = k(2);
         fprintf("k1 %d  k2 %d\n", k1, k2);
-
+        
         diff_k = max(abs(prev_k2 - k2), abs(prev_k1 -k1));
         prev_k1 = k1; prev_k2 = k2; % update radial distortion parameters values
         

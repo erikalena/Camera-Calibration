@@ -28,5 +28,5 @@ function [data] = zhangMethod(folder, chessSize)
     clear data
     data = estimateCamParam(imageData); 
     
-    fprintf('Everythin done. \n');
+    fprintf('Everything done. \n');
 end
