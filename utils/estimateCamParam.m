@@ -1,4 +1,13 @@
-function [data] = estimateCamParam(data)
+% this function implements Zhang Procedure except for radial distortion
+% compensation. It takes as input a data structure which must contain 
+% the images of planar pattern to be used for calibration along with
+% a certain amount of detected points for each image whose coordinates
+% ust be provided both wrt image (in pixels) frame and world reference
+% frame (in mm).
+% It also takes as input the number of images to be used to estimate matrix
+% B which is used to compute camera intrinsics, K.
+
+function [data] = estimateCamParam(data, nImgToBeUsed)
     n = length(data); % number of images
 
     % estimate H for each image
@@ -29,9 +38,9 @@ function [data] = estimateCamParam(data)
     end
     
     % compute V
-    V = zeros(2*n,6);
+    V = zeros(2*nImgToBeUsed,6);
     
-    for i=1:n
+    for i=1:nImgToBeUsed
         % v
         v_11 = findV(1,1, data(i).H);
         v_12 = findV(1,2, data(i).H);
@@ -78,7 +87,6 @@ function [data] = estimateCamParam(data)
     % once we have K, we can compute R,t (camera extrinsic for each image)
     % find extrinsic parameters for each image
     for idx=1:n
-        % verify lambda = 1/norm(inv(K)*data(idx).H(:,2))
         inv_K = inv(K);
         lambda = norm(inv_K*data(idx).H(:,1));
     
