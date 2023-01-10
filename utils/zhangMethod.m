@@ -1,6 +1,6 @@
 % use this function to compute prospective projection
 % matrix for each image provided
-% constraint: provide at least 4 images
+% constraint: provide at least 3 images
 % input: folder with images, checkerboard size
 % output: a data structure with all the parameters for each image (matrix P, R, t)
 
