@@ -3,7 +3,7 @@
 % output: a data structure with all the chessboard points saved for each
 % image, with corresponding coordinates in pixels and mm
 
-function [imageData] = load_data(folder, chessSize)
+function [imageData] = loadData(folder, chessSize)
     clear imageData
     
     files = dir(strcat(folder, '/*.tif'));

@@ -12,7 +12,15 @@ function [data] = estimateCamParam(data, nImgToBeUsed)
 
     % estimate H for each image
     for idx=1:n
-        XYpixel = data(idx).XYpixel;
+        % this control is for radial distortion compensation
+        % if in data structure we have new pixel coordinates
+        % resulting from radial distortion compensation, we will
+        % use them for estimating new P
+        if isfield(data(1),'expected') && ~isempty(data(1).expected) 
+            XYpixel = data(idx).expected;
+        else
+            XYpixel = data(idx).XYpixel;
+        end
         XYmm = data(idx).XYmm;
         
         A = zeros(2*length(XYpixel), 9); % size of A is 2n x 9

@@ -9,7 +9,7 @@ function [data] = zhangMethod(folder, chessSize)
     % load data (images) and
     % find checkerboard points
     clear imageData
-    imageData = load_data(folder, chessSize);
+    imageData = loadData(folder, chessSize);
     n = length(imageData); % number of images
     
     fprintf('Data loaded and points detected \n');
@@ -26,7 +26,7 @@ function [data] = zhangMethod(folder, chessSize)
     fprintf('Estimating camera parameters for each image... \n');
     % compute camera intrinsic and extrinsic parameters for each image
     clear data
-    data = estimateCamParam(imageData); 
+    data = estimateCamParam(imageData, n); 
     
     fprintf('Everything done. \n');
 end

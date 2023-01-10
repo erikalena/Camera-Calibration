@@ -1,9 +1,10 @@
 % This function implement the iterative procedure to adjust
 % projection matrix P wrt radial distortion
 function [data, k] = radialDistortionCompensation(data)
-
-    data = estimateCamParam(data); % estimate matrix P and all the parameters
+    
     n = length(data); % number of images
+    data = estimateCamParam(data,n); % estimate matrix P and all the parameters
+ 
     prev_P = data(1).P;
     prev_k1 = 0;
     prev_k2 = 0;
@@ -36,23 +37,28 @@ function [data, k] = radialDistortionCompensation(data)
         
         % initialize matrices and set the system
         % to find k1, k2 parameters
+        % we use 4 points for each image
+        
+        ii = [1; 50; 100; 150];
+        np = length(ii); % number of points used for each image
 
-        A = zeros(2*npoints*n, 2); % matrix A has two equations for each point of each image
-        b = zeros(2*npoints*n, 1); % column vector b of solutions
-        K =[ 657.6407         0  304.0482;  0  658.2484  245.2885; 0         0    1.0000]; %data(1).K; % matrix K of intrinsic parameters
+        A = zeros(2*np*n, 2); % matrix A has two equations for each point of each image
+        b = zeros(2*np*n, 1); % column vector b of solutions
+        K = data(1).K; % matrix K of intrinsic parameters
     
         % alphau, alphav, u0, v0 parameters in already computed matrix 
         alpha_u = K(1,1);
         theta = acot(K(1,2)/alpha_u); % skew angle between u and v axes, the angle is measured in radians
-        alpha_v = K(2,2);%*sin(theta);
+        alpha_v = K(2,2)*sin(theta);
         
         u0 = K(1,3);
         v0 = K(2,3);
         
+        
         % fill A and b
         for i=1:n
-            for j=1:npoints
-        
+            for z=1:np
+                j = ii(z); 
                 uhat = data(i).XYpixel(j,1);
                 u = data(i).expected(j,1);
         
@@ -61,7 +67,7 @@ function [data, k] = radialDistortionCompensation(data)
         
                 rd = ((u-u0)/alpha_u)^2 + ((v-v0)/alpha_v)^2;
                 
-                idx = (i-1)*2*npoints +j*2-1;
+                idx = (i-1)*2*np + (z)*2-1; 
               
                 A(idx,1) = (u - u0)*rd;
                 A(idx,2) = (u - u0)*rd^2;
@@ -73,12 +79,14 @@ function [data, k] = radialDistortionCompensation(data)
             
         end
 
+
         k = lsqr(A,b); % same as: inv((A'*A))*A'*b
         k1 = k(1); k2 = k(2);
         fprintf("k1 %d  k2 %d\n", k1, k2);
-
+        
+        % check how much k1,k2 change wrt previous ones
         diff_k = max(abs(prev_k2 - k2), abs(prev_k1 -k1));
-        prev_k1 = k1; prev_k2 = k2; % update radial distortion parameters values
+        prev_k1 = k1; prev_k2 = k2; % update radial distortion parameter values
         
         % new system in which the unknowns are x,y
         for i=1:n
@@ -103,14 +111,15 @@ function [data, k] = radialDistortionCompensation(data)
                 x = res(1); y = res(2);
                 % update m' (pixel values of each point) using the obtained result
                 % (values of x,y)
-                data(i).expected(j,1) = alpha_u*x + u0; %update u
-                data(i).expected(j,2) = alpha_v*y + v0; %update v
+                data(i).expected(j,1) = alpha_u*x + u0; % update u
+                data(i).expected(j,2) = alpha_v*y + v0; % update v
                 
             end
         end
         
-        data = estimating(data); % estimate matrix P and all the parameters
+        data = estimateCamParam(data,n); % estimate matrix P and all the parameters
         P = data(1).P;
+         % check the difference between P and the previously computed one
         diff_P = norm(P-prev_P);
         prev_P = P; 
 
