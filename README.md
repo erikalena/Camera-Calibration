@@ -7,7 +7,7 @@ The main purpose is to estimate perspective projection matrix which provides a d
 
 It is split into three parts:
 * implementation of Zhang method in order to find the intrinsic and extrinsic camera parameters;
-* a second part in which same steps are repeated on different images captured using a smartphone camera;
+* a second part in which the same steps are repeated on different images captured using a smartphone camera;
 * a third part where compensation for radial distortion is added to see if there is an improvement in global reprojection error.
 
 The whole project has been developed using Matlab. 
