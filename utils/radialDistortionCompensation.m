@@ -38,7 +38,6 @@ function [data, k] = radialDistortionCompensation(data)
         % initialize matrices and set the system
         % to find k1, k2 parameters
         % we use 4 points for each image
-        
         ii = [1; 50; 100; 150];
         np = length(ii); % number of points used for each image
 

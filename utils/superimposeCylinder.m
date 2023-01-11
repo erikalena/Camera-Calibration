@@ -1,3 +1,9 @@
+% function which superimpose a 3d object (a cylinder) 
+% to the planar patterns provided
+% input: 
+%   - data structure containing images along with
+%       estimations of camera intrinsic and extrinsic parameters
+%   - the folder in which we want to save results of superimposition
 function superimposeCylinder(data, folder)
     n = length(data);
     for idx=1:n 
