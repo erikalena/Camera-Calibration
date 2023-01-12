@@ -41,15 +41,7 @@ function superimposeCylinder(data, folder)
         projected = zeros(n_points*2, 3);
         for i = 1:length(m)
             res = data(idx).P*m(i,:)';
-            if res(3) > 0
-                if i > n_points % only for points which have z != 0
-                    m(i, 3)= -h;
-                end
-                res = data(idx).P*m(i,:)';
-                projected(i,:) = res./res(3);
-            else
-                projected(i,:) = res./res(3);
-            end
+            projected(i,:) = res./res(3);
         end
     
         x_bottom = projected(1:n_points,1);

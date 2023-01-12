@@ -103,10 +103,26 @@ function [data] = estimateCamParam(data, nImgToBeUsed)
         r2 = (1/lambda)*inv_K*data(idx).H(:,2);
         t = (1/lambda)*inv_K*data(idx).H(:,3);
         
-        r3 = cross(r1,r2);
+        r3 = cross(r2,r1);
         R = [r1 r2 r3];
+        
+        H = data(idx).H;
+        % angles of rotation wrt y axis
+        beta = asin(-H(1,3));
+        
+        % if the rotational degree wrt z axis if smaller than 90 degrees,
+        % the direction is reversed wrt image plane and we need to flip 
+        % the rotational matrix in this direction        
+        if sign(beta) > 0
+           flip = [1 0 0; 0 1 0; 0 0 -1]; % flip z axis
+           R = R*flip;
+        end
+        
         [U,~,V] = svd(R); % this because due to noise R may be not orthogonal
-        data(idx).R = [U*V' t]; % add R to data
+        R = U*V';
+
+        data(idx).R = [R t]; % add R to data
+
         data(idx).K = K;    % add K to data
         data(idx).P = data(idx).K*data(idx).R;
         data(idx).lambda = lambda;
